@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 func m() int {
@@ -13,7 +14,7 @@ func m() int {
 	pVerbose := flag.Bool("v", false, "verbose")
 	flag.Parse()
 
-	method := *pMethod
+	method := strings.ToUpper(*pMethod)
 	verbose := *pVerbose
 	urlString := flag.Arg(0)
 
