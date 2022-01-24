@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -9,7 +10,16 @@ import (
 	"strings"
 )
 
+const CMD_NAME = "tapi"
+
+func help() {
+	os.Stdout.Write([]byte(fmt.Sprintf("Usage of %s:\n", CMD_NAME)))
+	flag.PrintDefaults()
+}
+
 func m() int {
+	flag.Usage = help
+
 	pMethod := flag.String("m", "get", "request method")
 	pVerbose := flag.Bool("v", false, "verbose")
 	flag.Parse()
@@ -17,6 +27,11 @@ func m() int {
 	method := strings.ToUpper(*pMethod)
 	verbose := *pVerbose
 	urlString := flag.Arg(0)
+
+	if len(urlString) == 0 {
+		help()
+		return 0
+	}
 
 	parsedUrl, err := url.Parse(urlString)
 	if err != nil {
