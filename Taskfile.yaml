@@ -1,0 +1,15 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  build:
+    desc: build binary
+    dir: .
+    cmds:
+      - go build -o {{.DIST_DIR}}/{{.CMD_NAME}} main.go
+    silent: true
+
+vars:
+  CMD_NAME: tapi
+  DIST_DIR: dist
