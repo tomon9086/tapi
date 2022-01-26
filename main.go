@@ -3,11 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 	"os"
 	"strings"
+
+	"github.com/tomon9086/tapi/request"
 )
 
 const CMD_NAME = "tapi"
@@ -21,56 +20,31 @@ func m() int {
 	flag.Usage = help
 
 	pMethod := flag.String("m", "get", "request method")
-	pVerbose := flag.Bool("v", false, "verbose")
+	// pVerbose := flag.Bool("v", false, "verbose")
 	flag.Parse()
 
 	method := strings.ToUpper(*pMethod)
-	verbose := *pVerbose
-	urlString := flag.Arg(0)
+	// verbose := *pVerbose
+	url := flag.Arg(0)
 
-	if len(urlString) == 0 {
-		help()
-		return 0
-	}
-
-	parsedUrl, err := url.Parse(urlString)
+	body, err := request.Request(url, request.RequestOption{
+		Method: method,
+	})
 	if err != nil {
-		println(err.Error())
-		return 1
-	}
-	if parsedUrl.Scheme == "" {
-		parsedUrl.Scheme = "http"
-	}
-
-	req, err := http.NewRequest(method, parsedUrl.String(), nil)
-	if err != nil {
-		println(err.Error())
+		if err == request.ErrRequestEmptyUrl {
+			help()
+		} else {
+			println(err.Error())
+		}
 		return 1
 	}
 
-	if verbose {
-		println("method:", req.Method)
-		println("url:", req.URL.String())
-	}
-
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		println(err.Error())
-		return 1
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		println(err.Error())
-		return 1
-	}
 	_, err = os.Stdout.Write(body)
 	if err != nil {
 		println(err.Error())
 		return 1
 	}
+
 	return 0
 }
 
