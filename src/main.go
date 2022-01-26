@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tomon9086/tapi/request"
+	"github.com/tomon9086/tapi/src/request"
 )
 
 const CMD_NAME = "tapi"
