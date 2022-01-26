@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -20,14 +21,14 @@ func m() int {
 	flag.Usage = help
 
 	pMethod := flag.String("m", "get", "request method")
-	// pVerbose := flag.Bool("v", false, "verbose")
+	pVerbose := flag.Bool("v", false, "verbose")
 	flag.Parse()
 
 	method := strings.ToUpper(*pMethod)
-	// verbose := *pVerbose
+	verbose := *pVerbose
 	url := flag.Arg(0)
 
-	body, err := request.Request(url, request.RequestOption{
+	req, res, err := request.Request(url, request.RequestOption{
 		Method: method,
 	})
 	if err != nil {
@@ -38,7 +39,18 @@ func m() int {
 		}
 		return 1
 	}
+	defer res.Body.Close()
 
+	if verbose {
+		println("method:", req.Method)
+		println("url:", req.URL.String())
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		println(err.Error())
+		return 1
+	}
 	_, err = os.Stdout.Write(body)
 	if err != nil {
 		println(err.Error())
